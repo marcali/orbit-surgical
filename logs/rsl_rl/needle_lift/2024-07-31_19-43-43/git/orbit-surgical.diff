@@ -1,0 +1,66 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/handover/config/needle/__init__.py
+	modified:   source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/lift/config/needle/__init__.py
+	modified:   source/standalone/workflows/rsl_rl/train.py
+	modified:   source/standalone/workflows/sb3/train.py
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/handover/config/needle/__init__.py b/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/handover/config/needle/__init__.py
+index 298405a..0c67e6f 100644
+--- a/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/handover/config/needle/__init__.py
++++ b/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/handover/config/needle/__init__.py
+@@ -22,6 +22,8 @@ gym.register(
+     kwargs={
+         "env_cfg_entry_point": joint_pos_env_cfg.NeedleHandoverEnvCfg,
+         "rsl_rl_cfg_entry_point": agents.rsl_rl_cfg.HandoverNeedlePPORunnerCfg,
++        "skrl_cfg_entry_point": f"{agents.__name__}:skrl_ppo_cfg.yaml",
++        "sb3_cfg_entry_point": f"{agents.__name__}:sb3_ppo_cfg.yaml",
+     },
+     disable_env_checker=True,
+ )
+diff --git a/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/lift/config/needle/__init__.py b/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/lift/config/needle/__init__.py
+index bc2f928..a33339a 100644
+--- a/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/lift/config/needle/__init__.py
++++ b/source/extensions/orbit.surgical.tasks/orbit/surgical/tasks/surgical/lift/config/needle/__init__.py
+@@ -22,6 +22,8 @@ gym.register(
+     kwargs={
+         "env_cfg_entry_point": joint_pos_env_cfg.NeedleLiftEnvCfg,
+         "rsl_rl_cfg_entry_point": agents.rsl_rl_cfg.LiftNeedlePPORunnerCfg,
++        "skrl_cfg_entry_point": f"{agents.__name__}:skrl_ppo_cfg.yaml",
++        "sb3_cfg_entry_point": f"{agents.__name__}:sb3_ppo_cfg.yaml",
+     },
+     disable_env_checker=True,
+ )
+diff --git a/source/standalone/workflows/rsl_rl/train.py b/source/standalone/workflows/rsl_rl/train.py
+index 1b9263f..a6dfb85 100644
+--- a/source/standalone/workflows/rsl_rl/train.py
++++ b/source/standalone/workflows/rsl_rl/train.py
+@@ -83,6 +83,7 @@ def main():
+     if agent_cfg.run_name:
+         log_dir += f"_{agent_cfg.run_name}"
+     log_dir = os.path.join(log_root_path, log_dir)
++    print(f"[INFO] Logging run in directory: {log_dir}")
+ 
+     # max iterations for training
+     if args_cli.max_iterations:
+diff --git a/source/standalone/workflows/sb3/train.py b/source/standalone/workflows/sb3/train.py
+index 2559273..ec4a6e2 100644
+--- a/source/standalone/workflows/sb3/train.py
++++ b/source/standalone/workflows/sb3/train.py
+@@ -16,6 +16,7 @@ import argparse
+ 
+ from omni.isaac.lab.app import AppLauncher
+ 
++
+ # add argparse arguments
+ parser = argparse.ArgumentParser(description="Train an RL agent with Stable-Baselines3.")
+ parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
