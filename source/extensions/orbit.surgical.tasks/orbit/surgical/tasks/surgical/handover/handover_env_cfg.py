@@ -124,8 +124,32 @@ class ObservationsCfg:
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
 
-        # TODO
-
+        # observation terms (order preserved)
+        joint_1_pos = ObsTerm(
+            func=mdp.joint_pos_rel,
+            noise=Unoise(n_min=-0.01, n_max=0.01),
+            params={"asset_cfg": SceneEntityCfg("robot_1")},
+        )
+        joint_1_vel = ObsTerm(
+            func=mdp.joint_vel_rel,
+            noise=Unoise(n_min=-0.01, n_max=0.01),
+            params={"asset_cfg": SceneEntityCfg("robot_1")},
+        )
+        joint_2_pos = ObsTerm(
+            func=mdp.joint_pos_rel,
+            noise=Unoise(n_min=-0.01, n_max=0.01),
+            params={"asset_cfg": SceneEntityCfg("robot_2")},
+        )
+        joint_2_vel = ObsTerm(
+            func=mdp.joint_vel_rel,
+            noise=Unoise(n_min=-0.01, n_max=0.01),
+            params={"asset_cfg": SceneEntityCfg("robot_2")},
+        )
+        # pose_1_command = ObsTerm(func=mdp.generated_commands, params={"command_name": "ee_1_pose"})
+        # pose_2_command = ObsTerm(func=mdp.generated_commands, params={"command_name": "ee_2_pose"})
+        # //TODO: check if this is correct
+        object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
+        target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
         actions = ObsTerm(func=mdp.last_action)
 
         def __post_init__(self):
@@ -158,6 +182,42 @@ class RewardsCfg:
     """Reward terms for the MDP."""
 
     # TODO
+    # task terms
+    end_effector_1_position_tracking = RewTerm(
+        func=mdp.position_command_error,
+        weight=-0.2,
+        params={"asset_cfg": SceneEntityCfg("robot_1", body_names=MISSING), "command_name": "ee_1_pose"},
+    )
+    end_effector_1_orientation_tracking = RewTerm(
+        func=mdp.orientation_command_error,
+        weight=-0.05,
+        params={"asset_cfg": SceneEntityCfg("robot_1", body_names=MISSING), "command_name": "ee_1_pose"},
+    )
+
+    end_effector_2_position_tracking = RewTerm(
+        func=mdp.position_command_error,
+        weight=-0.2,
+        params={"asset_cfg": SceneEntityCfg("robot_2", body_names=MISSING), "command_name": "ee_2_pose"},
+    )
+    end_effector_2_orientation_tracking = RewTerm(
+        func=mdp.orientation_command_error,
+        weight=-0.05,
+        params={"asset_cfg": SceneEntityCfg("robot_2", body_names=MISSING), "command_name": "ee_2_pose"},
+    )
+
+    # action penalty
+    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-0.0001)
+
+    joint_1_vel = RewTerm(
+        func=mdp.joint_vel_l2,
+        weight=-0.0001,
+        params={"asset_cfg": SceneEntityCfg("robot_1")},
+    )
+    joint_2_vel = RewTerm(
+        func=mdp.joint_vel_l2,
+        weight=-0.0001,
+        params={"asset_cfg": SceneEntityCfg("robot_2")},
+    )
 
     # action penalty
     action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-3)
